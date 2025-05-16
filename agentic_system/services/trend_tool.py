@@ -3,25 +3,27 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from langchain_core.tools import tool
-from schemas.state import CampaignState
+from schemas.state import CampaignState, Message, Step
 from serpapi.google_search import GoogleSearch
 import os
 import time
 import json
+from pydantic import BaseModel
 from dotenv import load_dotenv
 load_dotenv()
 
 
 from configs.llm_config import get_llm
 
+class TrendAnalyzerInput(BaseModel):
+    state: CampaignState
 
-@tool
+@tool(args_schema=TrendAnalyzerInput)
 def trend_analyzer(state: CampaignState) -> dict:
     """Fetch trends related to the campaign theme using SerpAPI and LLM-generated keywords.
     
     Args:
         state: CampaignState containing campaign_theme and other fields.
-        llm: ChatOpenAI instance for keyword generation.
     
     Returns:
         Dict with 'trends' (List[dict]) and 'messages' (List[dict]) for state update.
@@ -34,7 +36,7 @@ def trend_analyzer(state: CampaignState) -> dict:
         print(error_msg)
         return {
             "trends": [{"keyword": theme, "error": "Missing API key"}],
-            "messages": state.messages + [{"role": "assistant", "content": error_msg}]
+            "messages": state.messages + [Message(role="assistant", content=error_msg)]
         }
 
     # Generate keywords using LLM with structured output
@@ -102,16 +104,20 @@ def trend_analyzer(state: CampaignState) -> dict:
         except Exception as e:
             print(f"Error processing keyword '{keyword}': {e}")
             trends_data.append({"keyword": keyword, "error": str(e)})
-            state.messages.append({
-                "role": "assistant",
-                "content": f"Error fetching trends for '{keyword}': {e}"
-            })
+            # state.messages.append({
+            #     "role": "assistant",
+            #     "content": f"Error fetching trends for '{keyword}': {e}"
+            # })
+            state.messages.append(Message(
+                role="assistant",
+                content=f"Error fetching trends for '{keyword}': {e}"
+            ))
 
     # Update state
-    update_message = {
-        "role": "assistant",
-        "content": f"Analyzed trends for '{theme}': {', '.join(t['keyword'] for t in trends_data)}"
-    }
+    update_message = Message(
+        role="assistant",
+        content=f"Analyzed trends for '{theme}': {', '.join(t['keyword'] for t in trends_data)}"
+    )
     return {
         "trends": trends_data,
         "messages": state.messages + [update_message]
