@@ -60,18 +60,19 @@ def script_generator(state: CampaignState) -> dict:
         "Return a JSON object with 'script' as a string and 'production_ideas' as a list of strings."
     )
     try:
+        print("-----Generating script for the campaign----\n")
         response = llm.invoke(
             [{"role": "system", "content": "You are a helpful assistant, Do not make any tool call."}, {"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
-        print("_____HASH INFO: LLM RESPONDED_____________")
-        print(response)
+        # print("_____HASH INFO: LLM RESPONDED_____________")
+        # print(response)
         result = json.loads(response.content)
-        print("_____HASH INFO: json content loaded_____________")
-        print(result)
+        # print("_____HASH INFO: json content loaded_____________")
+        # print(result)
         script = result.get("script", "")
-        print("\nThis is the script\n\n")
-        print(script)
+        # print("\nThis is the script\n\n")
+        # print(script)
         production_ideas = result.get("production_ideas", [])
         if not script:
             raise ValueError("Empty script generated")

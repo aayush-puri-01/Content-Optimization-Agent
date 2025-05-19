@@ -35,10 +35,10 @@ def search_engine(state: CampaignState) -> dict:
 
     #✅ Extract search terms
     search_terms = [trend.keyword for trend in trends] # or [theme]
-    print(search_terms)
+    # print(search_terms)
     
     search_results: List[SearchResult] = []
-    print(search_results)
+    # print(search_results)8
 
     tavily = TavilySearchResults(max_results=5, include_answer=True, include_raw_content=True)
     
