@@ -30,7 +30,7 @@ def trend_analyzer(state: CampaignState) -> dict:
     """
     llm = get_llm()
     theme = state.campaign_theme
-    serpapi_key = os.environ.get("SERPAPI_KEY")
+    serpapi_key = os.environ.get("NEW_SERPAPI_KEY")
     if not serpapi_key:
         error_msg = "SERPAPI_KEY not set. Cannot fetch trends."
         print(error_msg)
@@ -49,6 +49,7 @@ def trend_analyzer(state: CampaignState) -> dict:
             [{"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
+        # print(response)
         keywords = json.loads(response.content).get("keywords", [theme])
     except Exception as e:
         print(f"Error generating keywords: {e}")
@@ -68,7 +69,9 @@ def trend_analyzer(state: CampaignState) -> dict:
                 "location": "United States",
                 "api_key": serpapi_key
             }
+
             search = GoogleSearch(params)
+
             results = search.get_dict()
 
             trend_info = {"keyword": keyword, "relevance": 100}
@@ -88,6 +91,7 @@ def trend_analyzer(state: CampaignState) -> dict:
                         s["title"] for s in top_results[0]["sitelinks"]["inline"][:3] if "title" in s
                     ]
                 trend_info["related_queries"] = related_queries
+
 
             # Trend direction heuristic
             trend_direction = "neutral"

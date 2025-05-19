@@ -13,7 +13,8 @@ from services.hashtag_gen import hashtag_generator
 from services.script_tool import script_generator
 
 from configs.llm_config import get_llm
-
+from dotenv import load_dotenv
+load_dotenv()
 
 def format_response(state: CampaignState) -> str:
     """Format a detailed response."""
@@ -33,9 +34,9 @@ def format_response(state: CampaignState) -> str:
     if state.script:
         executed = ", ".join(s.step for s in state.steps if s.executed)
         pending = ", ".join(s.step for s in state.steps if not s.executed)
-        details.append(f"executed steps: {executed}")
+        details.append(f"executed steps: {executed}\n")
         if pending:
-            details.append(f"pending steps: {pending}")
+            details.append(f"pending steps: {pending}\n")
 
     next_steps = ""
     if state.current_step in ["search_engine", "trend_analyzer"]:
@@ -130,7 +131,7 @@ if __name__ == "__main__":
         hashtags=[],
         script="",
         production_ideas=[],
-        messages=[Message(role="user", content="Search relevant topics in the web for my blog on a marketing campaign.")],
+        messages=[Message(role="user", content="Create a complete campaign for new cloth brand focusing on local silk production, aiming the Gen Z people in a humorous tone.")],
         current_step=""
     )
 

@@ -42,7 +42,7 @@ def hashtag_generator(state: CampaignState) -> dict:
     #     print(search_terms[i])
     #     print(type(search_terms[i]))
 
-    # print(f"Trend Keywords: {', '.join(trend_keywords)}\n")
+    print(f"Trend Keywords: {', '.join(trend_keywords)}\n")
 
 
     # Generate hashtags
@@ -61,19 +61,19 @@ def hashtag_generator(state: CampaignState) -> dict:
     )
     try:
         response = llm.invoke(
-            [{"role": "system", "content": "Do not make a tool call if theme, trend keywords and search terms are provided in the context from the user."},{"role": "user", "content": prompt}],
+            [{"role": "system", "content": "Do not make any tool call whatsoever."},{"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
-        print("----------------LLM HAS RESPONDED----------------")
-        print(response)
-        temp_json_load = json.loads(response.content)
-        print(temp_json_load)
+        # print("----------------LLM HAS RESPONDED----------------")
+        # print(response)
+        # temp_json_load = json.loads(response.content)
+        # print(temp_json_load)
         hashtags = json.loads(response.content).get("hashtags", [])
-        print("********hashtags populated*************")
-        print(hashtags)
+        # print("********Hashtags populated*************\n")
+        # print(hashtags)
         hashtags = [f"#{tag.lstrip('#')}" for tag in hashtags]
-        print("********hashtags beautified*************")
-        print(hashtags)  # Ensure # prefix
+        # print("********hashtags beautified*************")
+        # print(hashtags)  # Ensure # prefix
     except Exception as e:
         print(f"Error generating hashtags: {e}")
         words = theme.split()

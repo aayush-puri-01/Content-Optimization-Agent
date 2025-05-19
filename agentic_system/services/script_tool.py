@@ -34,14 +34,15 @@ def script_generator(state: CampaignState) -> dict:
 
     # Summarize context
     trend_keywords = [t.keyword for t in trends]
-    # print(trend_keywords)
+    print(trend_keywords)
     search_terms = [r.term for r in search_results]
-    # print(search_terms)
+    print(search_terms)
     hashtags_text = ", ".join(hashtags) if hashtags else "None"
-    # print(hashtags_text)
+    print(hashtags_text)
 
     # Generate script
     prompt = (
+        f"Carry all the steps without calling any tools that you have access to:\n\n"
         f"Create an engaging {duration}-second campaign script:\n"
         f"Campaign Theme: {theme}\n"
         f"Target Audience: {audience}\n"
@@ -60,7 +61,7 @@ def script_generator(state: CampaignState) -> dict:
     )
     try:
         response = llm.invoke(
-            [{"role": "system", "content": "You are a helpful assistant, do not make any tool calls if theme, trend keywords, audience, duration, hashtags text, search terms are provided in the context from the user."}, {"role": "user", "content": prompt}],
+            [{"role": "system", "content": "You are a helpful assistant, Do not make any tool call."}, {"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
         print("_____HASH INFO: LLM RESPONDED_____________")

@@ -77,50 +77,58 @@ def llm_router(state: CampaignState) -> dict:
             "steps": steps,
             "current_step": next_step
         }
+    
+    print("\n\nAll planned steps executed. Ending workflow.")
+    return {
+        "steps": steps,
+        "current_step": "END",
+        "messages": state.messages + [Message(role="system", content="All planned steps have been executed. Workflow complete.")]
+    }
 
-    # No unexecuted steps: ask LLM if workflow is complete
-    prompt = (
-        f"Current state:\n"
-        f"Campaign Theme: {state.campaign_theme}\n"
-        f"Target Audience: {state.target_audience}\n"
-        f"Tone: {state.tone}\n"
-        f"Steps Executed: {', '.join(s.step for s in steps if s.executed)}\n"
-        f"Trends: {len(state.trends)} found\n"
-        f"Search Results: {len(state.search_results)} sets\n"
-        f"Hashtags: {len(state.hashtags)} generated\n"
-        f"Script: {'generated' if state.script else 'not generated'}\n"
-        f"User Input: {state.messages[0].content}\n"
-        "All planned steps are executed. Decide if the workflow is complete or if additional tools are needed.\n"
-        # "Hashtags generation and Script generation need to be performed only after trend analysis and web search.\n"
-        "Available tools: trend_analyzer, search_engine, hashtag_generator, script_generator.\n"
-        "Return a JSON object with 'current_step' and 'new_steps' as keys. 'current_step' is a tool name or END and 'new_steps' is a list of new steps, if any)."
-    )
 
-    # return {
-    #     "steps": steps,
-    #     "current_step": next_step
-    # } 
+    # # No unexecuted steps: ask LLM if workflow is complete
+    # prompt = (
+    #     f"Current state:\n"
+    #     f"Campaign Theme: {state.campaign_theme}\n"
+    #     f"Target Audience: {state.target_audience}\n"
+    #     f"Tone: {state.tone}\n"
+    #     f"Steps Executed: {', '.join(s.step for s in steps if s.executed)}\n"
+    #     f"Trends: {len(state.trends)} found\n"
+    #     f"Search Results: {len(state.search_results)} sets\n"
+    #     f"Hashtags: {len(state.hashtags)} generated\n"
+    #     f"Script: {'generated' if state.script else 'not generated'}\n"
+    #     f"User Input: {state.messages[0].content}\n"
+    #     "All planned steps are executed. Decide if the workflow is complete or if additional tools are needed.\n"
+    #     # "Hashtags generation and Script generation need to be performed only after trend analysis and web search.\n"
+    #     "Available tools: trend_analyzer, search_engine, hashtag_generator, script_generator.\n"
+    #     "Return a JSON object with 'current_step' and 'new_steps' as keys. 'current_step' is a tool name or END and 'new_steps' is a list of new steps, if any)."
+    # )
 
-    try:
-        response = llm.invoke([{"role": "user", "content": prompt}], response_format={"type": "json_object"})
-        result = json.loads(response.content)
-        new_steps = [
-            Step(step=s, executed=False)
-            for s in result.get("new_steps", [])
-            if s in ["trend_analyzer", "search_engine", "hashtag_generator", "script_generator"]
-        ]
-        steps.extend(new_steps)
-        next_step = result.get("current_step", "END")
-        if next_step not in ["trend_analyzer", "search_engine", "hashtag_generator", "script_generator", "END"]:
-            next_step = "END"
-        return {
-            "steps": steps,
-            "current_step": next_step
-        }
-    except Exception as e:
-        print(f"Error in dynamic routing: {e}")
-        return {
-            "steps": steps,
-            "messages": state.messages + [Message(role="assistant", content=f"Error determining next step: {e}")],
-            "current_step": "END"
-        }
+    # # return {
+    # #     "steps": steps,
+    # #     "current_step": next_step
+    # # } 
+
+    # try:
+    #     response = llm.invoke([{"role": "user", "content": prompt}], response_format={"type": "json_object"})
+    #     result = json.loads(response.content)
+    #     new_steps = [
+    #         Step(step=s, executed=False)
+    #         for s in result.get("new_steps", [])
+    #         if s in ["trend_analyzer", "search_engine", "hashtag_generator", "script_generator"]
+    #     ]
+    #     steps.extend(new_steps)
+    #     next_step = result.get("current_step", "END")
+    #     if next_step not in ["trend_analyzer", "search_engine", "hashtag_generator", "script_generator", "END"]:
+    #         next_step = "END"
+    #     return {
+    #         "steps": steps,
+    #         "current_step": next_step
+    #     }
+    # except Exception as e:
+    #     print(f"Error in dynamic routing: {e}")
+    #     return {
+    #         "steps": steps,
+    #         "messages": state.messages + [Message(role="assistant", content=f"Error determining next step: {e}")],
+    #         "current_step": "END"
+    #     }

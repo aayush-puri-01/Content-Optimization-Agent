@@ -6,7 +6,7 @@ import os
 from pydantic import BaseModel
 import time
 from dotenv import load_dotenv
-load_dotenv()
+# load_dotenv()
 
 class SearchEngineInput(BaseModel):
     state: CampaignState
@@ -45,7 +45,7 @@ def search_engine(state: CampaignState) -> dict:
     for term in search_terms:
         try:
             print(f"Searching for: {term}")
-            results_raw = tavily.invoke(f"latest information about {term}")[:5]
+            results_raw = tavily.invoke(f"latest information about {term}")[:5] #it was set five here
             # print(results_raw[0]) #✅
             items = [SearchItem(**r) for r in results_raw]
             # print(type(items)) #✅
