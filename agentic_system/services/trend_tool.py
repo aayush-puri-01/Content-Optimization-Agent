@@ -12,6 +12,11 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 load_dotenv()
 
+from configs.logging_config import setup_logging
+import logging
+setup_logging()
+logger = logging.getLogger(__name__)
+
 
 from configs.llm_config import get_llm
 
@@ -28,6 +33,7 @@ def trend_analyzer(state: CampaignState) -> dict:
     Returns:
         Dict with 'trends' (List[dict]) and 'messages' (List[dict]) for state update.
     """
+    logger.info("Executing the Trend Analyzer tool")
     llm = get_llm()
     theme = state.campaign_theme
     serpapi_key = os.environ.get("NEW_SERPAPI_KEY")
@@ -52,7 +58,7 @@ def trend_analyzer(state: CampaignState) -> dict:
         # print(response)
         keywords = json.loads(response.content).get("keywords", [theme])
     except Exception as e:
-        print(f"Error generating keywords: {e}")
+        logger.error(f"Error generating keywords: {e}")
         keywords = [theme]
         state.messages.append({
             "role": "assistant",
@@ -104,6 +110,7 @@ def trend_analyzer(state: CampaignState) -> dict:
             trend_info["trend_direction"] = trend_direction
 
             trends_data.append(trend_info)
+            logger.info("Trends have been analyzed successfully!! ✅")
             time.sleep(1)  # Avoid rate limits
         except Exception as e:
             print(f"Error processing keyword '{keyword}': {e}")

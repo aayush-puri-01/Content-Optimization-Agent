@@ -8,6 +8,11 @@ import time
 from dotenv import load_dotenv
 # load_dotenv()
 
+from configs.logging_config import setup_logging
+import logging
+setup_logging()
+logger = logging.getLogger(__name__)
+
 class SearchEngineInput(BaseModel):
     state: CampaignState
 
@@ -21,13 +26,14 @@ def search_engine(state: CampaignState) -> dict:
     Returns:
         Dict with 'search_results' (List[dict]) and 'messages' (List[dict]).
     """
+    logger.info("Executing the Web Search Tool !!")
     trends = state.trends
     theme = state.campaign_theme
     tavily_api_key = os.environ.get("TAVILY_API_KEY")
     
     if not tavily_api_key:
         error_msg = "TAVILY_API_KEY not set. Cannot perform search."
-        print(error_msg)
+        logger.error(error_msg)
         return {
             "search_results": [],
             "messages": state.messages + [Message(role="assistant", content=error_msg)]
@@ -38,13 +44,13 @@ def search_engine(state: CampaignState) -> dict:
     # print(search_terms)
     
     search_results: List[SearchResult] = []
-    # print(search_results)8
+    # print(search_results)
 
     tavily = TavilySearchResults(max_results=5, include_answer=True, include_raw_content=True)
     
     for term in search_terms:
         try:
-            print(f"Searching for: {term}")
+            logger.info(f"Searching for: {term}")
             results_raw = tavily.invoke(f"latest information about {term}")[:5] #it was set five here
             # print(results_raw[0]) #✅
             items = [SearchItem(**r) for r in results_raw]
@@ -53,7 +59,7 @@ def search_engine(state: CampaignState) -> dict:
             search_results.append(SearchResult(term=term, results=items))
             time.sleep(1)  # Avoid rate limits
         except Exception as e:
-            print(f"Error searching for '{term}': {e}")
+            logger.error(f"Error searching for '{term}': {e}")
             search_results.append(SearchResult(term=term, error=str(e)))
             state.messages.append(Message(
                 role="assistant",

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from configs.llm_config import get_llm
 
 from schemas.state import CampaignState, Message, Step
@@ -8,11 +7,16 @@ import json
 from dotenv import load_dotenv
 load_dotenv()
 
+from configs.logging_config import setup_logging
+import logging
+setup_logging()
+logger = logging.getLogger(__name__)
+
 def llm_router(state: CampaignState) -> dict:
     """Dynamically route to the next tool or end, using steps in state."""
     llm = get_llm()
     if not state.current_step:
-        print("Current step not found so extracting parameters")
+        logger.info("Current step not found so extracting parameters")
         # Initial invocation: extract parameters and generate steps
         user_input = state.messages[0].content
         prompt = (
@@ -40,7 +44,7 @@ def llm_router(state: CampaignState) -> dict:
                 for s in result.get("steps", [])
                 if s.get("step") in ["trend_analyzer", "search_engine", "hashtag_generator", "script_generator"]
             ]
-            print(steps) #✅ steps found
+            logging.info(steps) #✅ steps found
             if not params.get("campaign_theme"):
                 return {
                     "messages": state.messages + [Message(role="assistant", content="Please provide a campaign theme.")],
@@ -57,7 +61,7 @@ def llm_router(state: CampaignState) -> dict:
             }
             return state_updates
         except Exception as e:
-            print(f"Error extracting parameters or steps: {e}")
+            logger.error(f"Error extracting parameters or steps: {e}")
             return {
                 "messages": state.messages + [Message(role="assistant", content=f"Error initializing workflow: {e}")],
                 "current_step": "END"
@@ -78,7 +82,7 @@ def llm_router(state: CampaignState) -> dict:
             "current_step": next_step
         }
     
-    print("\n\nAll planned steps executed. Ending workflow.")
+    logger.info("\n\nAll planned steps executed. Ending workflow.")
     return {
         "steps": steps,
         "current_step": "END",

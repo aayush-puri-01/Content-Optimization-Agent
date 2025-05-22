@@ -9,6 +9,10 @@ from typing import TYPE_CHECKING
 
 # if TYPE_CHECKING:
 from configs.llm_config import get_llm
+from configs.logging_config import setup_logging
+import logging
+setup_logging()
+logger = logging.getLogger(__name__)
 
 class HashtagGeneratorInput(BaseModel):
     state: CampaignState
@@ -23,6 +27,7 @@ def hashtag_generator(state: CampaignState) -> dict:
     Returns:
         Dict with 'hashtags' (List[str]) and 'messages' (List[dict]).
     """
+    logger.info("Executing Hashtag Generation Step!")
     llm = get_llm()
     theme = state.campaign_theme
     trends = state.trends
@@ -42,7 +47,7 @@ def hashtag_generator(state: CampaignState) -> dict:
     #     print(search_terms[i])
     #     print(type(search_terms[i]))
 
-    print(f"Trend Keywords: {', '.join(trend_keywords)}\n")
+    logger.info(f"Trend Keywords: {', '.join(trend_keywords)}\n")
 
 
     # Generate hashtags
@@ -75,7 +80,7 @@ def hashtag_generator(state: CampaignState) -> dict:
         # print("********hashtags beautified*************")
         # print(hashtags)  # Ensure # prefix
     except Exception as e:
-        print(f"Error generating hashtags: {e}")
+        logger.error(f"Error generating hashtags: {e}")
         words = theme.split()
         hashtags = ["#" + "".join(words), f"#{words[0]}Campaign"] if words else ["#Campaign"]
         state.messages.append(Message(

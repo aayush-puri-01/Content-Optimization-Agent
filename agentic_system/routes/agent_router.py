@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from agent import format_campaign_output, build_graph
 from schemas.state import CampaignState, Message
 
-import json
 
 from schemas.api_schemas import CampaignRequest, CampaignResponse
+from configs.logging_config import setup_logging
+import logging
+setup_logging()
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -37,6 +40,7 @@ def query_agent(request:CampaignRequest):
             result = graph.invoke(initial_state)
             final_state = CampaignState(**result)
             formatted_state = format_campaign_output(final_state)
+            logger.info(f"\n------------Complete campaign description------------\n{formatted_state}")
             return CampaignResponse(formatted_output=formatted_state)
         except Exception as e:
             return JSONResponse(content={"error":f"Internal Processing Error, API endpoint entered but couldnt produce results! : {str(e)}"})

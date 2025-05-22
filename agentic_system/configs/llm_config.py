@@ -5,7 +5,7 @@ _llm = None
 
 def get_llm() -> ChatOpenAI:
     """Initialize and return the LLM with bound tools."""
-    global _llm
+    global _llm #the llm instance is announced global, for use across the project and not having to insantiate a LLM instance everytime
 
     if _llm is None:
         from services.trend_tool import trend_analyzer

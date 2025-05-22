@@ -9,6 +9,10 @@ from typing import TYPE_CHECKING
 
 # if TYPE_CHECKING:
 from configs.llm_config import get_llm
+from configs.logging_config import setup_logging
+import logging
+setup_logging()
+logger = logging.getLogger(__name__)
 
 class ScriptGeneratorInput(BaseModel):
     state: CampaignState
@@ -23,6 +27,7 @@ def script_generator(state: CampaignState) -> dict:
     Returns:
         Dict with 'script' (str), 'production_ideas' (List[str]), and 'messages' (List[dict]).
     """
+    logger.info("Executing Script Generation ")
     llm = get_llm()
     theme = state.campaign_theme
     trends = state.trends
@@ -34,11 +39,11 @@ def script_generator(state: CampaignState) -> dict:
 
     # Summarize context
     trend_keywords = [t.keyword for t in trends]
-    print(trend_keywords)
+    logger.info(f"Trend keywords gathered are: \n {trend_keywords}")
     search_terms = [r.term for r in search_results]
-    print(search_terms)
+    logger.info(f"Search Terms gathered are: \n {search_terms}")
     hashtags_text = ", ".join(hashtags) if hashtags else "None"
-    print(hashtags_text)
+    logger.info(f"Hashtags gathered are: \n {hashtags_text}")
 
     # Generate script
     prompt = (
@@ -60,7 +65,7 @@ def script_generator(state: CampaignState) -> dict:
         "Return a JSON object with 'script' as a string and 'production_ideas' as a list of strings."
     )
     try:
-        print("-----Generating script for the campaign----\n")
+        logger.info("-----Generating script for the campaign----\n")
         response = llm.invoke(
             [{"role": "system", "content": "You are a helpful assistant, Do not make any tool call."}, {"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
@@ -78,7 +83,7 @@ def script_generator(state: CampaignState) -> dict:
             raise ValueError("Empty script generated")
         
     except Exception as e:
-        print(f"Error generating script: {e}")
+        logger.error(f"Error generating script: {e}")
         script = f"Script for {theme} campaign (fallback due to error)."
         production_ideas = ["Use vibrant visuals", "Highlight key product moments"]
         state.messages.append(Message(
