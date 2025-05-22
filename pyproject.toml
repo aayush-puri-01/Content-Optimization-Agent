@@ -11,6 +11,7 @@ dependencies = [
     "fastapi>=0.115.12",
     "google-search-results>=2.4.2",
     "google-serp-api>=1.0.5",
+    "gradio>=3.36.1",
     "ipykernel>=6.29.5",
     "jq>=1.8.0",
     "langchain>=0.3.25",
@@ -25,6 +26,7 @@ dependencies = [
     "pyppeteer>=2.0.0",
     "pytrends>=4.9.2",
     "serpapi>=0.1.5",
+    "setuptools>=80.8.0",
     "tavily-python>=0.7.2",
     "uvicorn>=0.34.2",
 ]
