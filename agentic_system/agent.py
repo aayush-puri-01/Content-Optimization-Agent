@@ -9,6 +9,7 @@ from services.trend_tool import trend_analyzer
 from services.search_tool import search_engine
 from services.hashtag_gen import hashtag_generator
 from services.script_tool import script_generator
+from services.tts_tool import tts
 
 from configs.llm_config import get_llm
 from dotenv import load_dotenv
@@ -138,6 +139,12 @@ def script_generator_node(state: CampaignState) -> CampaignState:
         "current_step": "script_generator"
     }
 
+def tts_node(state: CampaignState) -> CampaignState:
+    result = tts.invoke({"state": state})
+    return {
+        "messages": result["messages"],
+    }
+
 # Build graph
 def build_graph():
     workflow = StateGraph(CampaignState)
@@ -146,6 +153,7 @@ def build_graph():
     workflow.add_node("search_engine", search_engine_node)
     workflow.add_node("hashtag_generator", hashtag_generator_node)
     workflow.add_node("script_generator", script_generator_node)
+    workflow.add_node("tts_generator", tts_node)
 
     # Edges
     workflow.add_conditional_edges(
@@ -156,6 +164,7 @@ def build_graph():
             "search_engine": "search_engine",
             "hashtag_generator": "hashtag_generator",
             "script_generator": "script_generator",
+            "tts_generator": "tts_generator",
             "END": END
         }
     )
@@ -163,11 +172,13 @@ def build_graph():
     workflow.add_edge("search_engine", "llm_router")
     workflow.add_edge("hashtag_generator", "llm_router")
     workflow.add_edge("script_generator", "llm_router")
+    workflow.add_edge("tts_generator", "llm_router")
     workflow.set_entry_point("llm_router")
 
     # Compile graph
     graph = workflow.compile()
 
+    print(graph)
     return graph
 
 
@@ -183,12 +194,12 @@ initial_state = CampaignState(
     hashtags=[],
     script="",
     production_ideas=[],
-    messages=[Message(role="user", content="Create a complete campaign for street wear fashion brand aiming the Gen Z people in a humorous tone.")],
+    messages=[Message(role="user", content="Provide text to speech for the generated script for street wear fashion brand aiming the Gen Z people in a humorous tone.")],
     current_step=""
 )
 
-# graph = build_graph()
+graph = build_graph()
 
-# result = graph.invoke(initial_state)
-# final_state = CampaignState(**result)
-# print(format_campaign_output(final_state))
+result = graph.invoke(initial_state)
+final_state = CampaignState(**result)
+print(format_campaign_output(final_state))

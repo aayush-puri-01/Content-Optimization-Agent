@@ -28,9 +28,9 @@ def llm_router(state: CampaignState) -> dict:
             "Return a JSON object with 'parameters' and 'steps' fields.\n"
             "Parameters: include the extracted fields.\n"
             "Steps: a list of steps, each with 'step' (tool name) based on the user input.\n"
-            "Available tools: trend_analyzer, search_engine, hashtag_generator, script_generator.\n"
-            "It is to be noted that Hashtags generation and Script generation need to be performed only after trend analysis and web search.\n"
-            "Example: for a full campaign, include all tools in order; for research, include trend_analyzer and search_engine."
+            "Available tools: trend_analyzer, search_engine, hashtag_generator, script_generator, tts_generator (text to speech).\n"
+            "It is to be noted that text-to-speech, Hashtags generation and Script generation need to be performed only after trend analysis and web search.\n"
+            "Example: for a full campaign, include all tools and text to speech converter in order; for research, include trend_analyzer and search_engine."
         )
         try:
             response = llm.invoke([{"role": "user", "content": prompt}], response_format={"type": "json_object"})
@@ -42,7 +42,7 @@ def llm_router(state: CampaignState) -> dict:
             steps = [
                 Step(step=s["step"], executed=False)
                 for s in result.get("steps", [])
-                if s.get("step") in ["trend_analyzer", "search_engine", "hashtag_generator", "script_generator"]
+                if s.get("step") in ["trend_analyzer", "search_engine", "hashtag_generator", "script_generator", "tts"]
             ]
             logging.info(steps) #✅ steps found
             if not params.get("campaign_theme"):
