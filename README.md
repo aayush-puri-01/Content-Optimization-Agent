@@ -10,6 +10,7 @@ A LangGraph-powered intelligent agent that helps creators and marketers generate
 - **Hashtag Generation**: Creates relevant, engaging, and up-to-date hashtags aligned with campaign themes.
 - **Graph-Based Workflow**: Uses LangGraph to conditionally route between tools and human-in-the-loop steps.
 - **Tool-Centric Modular Design**: Each capability is encapsulated in a reusable, independently callable tool.
+- **Text-To-Speech Conversion**: The script generated for the campaign can be converted to an audio file using the google gemini tts service.
 
 ---
 
@@ -19,6 +20,7 @@ A LangGraph-powered intelligent agent that helps creators and marketers generate
 - [OpenAI GPT-4o-mini](https://openai.com) as the central LLM
 - [Tavily](https://www.tavily.com/) for up-to-date search results
 - [PyTrends](https://github.com/GeneralMills/pytrends) for keyword trend analysis
+- [SerpAPI](https://serpapi.com) for web search
 - [Pydantic](https://docs.pydantic.dev) for structured tool schemas
 - [LangChain](https://www.langchain.com/) for tools and prompt management
 
