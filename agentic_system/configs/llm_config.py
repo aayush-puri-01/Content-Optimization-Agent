@@ -12,8 +12,8 @@ def get_llm() -> ChatOpenAI:
         from services.search_tool import search_engine
         from services.hashtag_gen import hashtag_generator
         from services.script_tool import script_generator
-        from services.tts_tool import tts
+        from services.tts_tool import tts_generator
         _llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
-        tools = [trend_analyzer, search_engine, hashtag_generator, script_generator, tts]
+        tools = [trend_analyzer, search_engine, hashtag_generator, script_generator, tts_generator]
         _llm = _llm.bind_tools(tools, strict=True)
     return _llm

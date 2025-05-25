@@ -9,7 +9,7 @@ from services.trend_tool import trend_analyzer
 from services.search_tool import search_engine
 from services.hashtag_gen import hashtag_generator
 from services.script_tool import script_generator
-from services.tts_tool import tts
+from services.tts_tool import tts_generator
 
 from configs.llm_config import get_llm
 from dotenv import load_dotenv
@@ -139,8 +139,8 @@ def script_generator_node(state: CampaignState) -> CampaignState:
         "current_step": "script_generator"
     }
 
-def tts_node(state: CampaignState) -> CampaignState:
-    result = tts.invoke({"state": state})
+def tts_generator_node(state: CampaignState) -> CampaignState:
+    result = tts_generator.invoke({"state": state})
     return {
         "messages": result["messages"],
     }
@@ -153,7 +153,7 @@ def build_graph():
     workflow.add_node("search_engine", search_engine_node)
     workflow.add_node("hashtag_generator", hashtag_generator_node)
     workflow.add_node("script_generator", script_generator_node)
-    workflow.add_node("tts_generator", tts_node)
+    workflow.add_node("tts_generator", tts_generator_node)
 
     # Edges
     workflow.add_conditional_edges(
@@ -194,7 +194,7 @@ initial_state = CampaignState(
     hashtags=[],
     script="",
     production_ideas=[],
-    messages=[Message(role="user", content="Provide text to speech for the generated script for street wear fashion brand aiming the Gen Z people in a humorous tone.")],
+    messages=[Message(role="user", content="Provide a complete campaign for a new sustainable shoe brand focusing the millenials in a humorous tone.")],
     current_step=""
 )
 
