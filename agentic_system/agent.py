@@ -15,41 +15,6 @@ from configs.llm_config import get_llm
 from dotenv import load_dotenv
 load_dotenv()
 
-# def format_response(state: CampaignState) -> str:
-#     """Format a detailed response."""
-#     details = []
-#     if state.trends:
-#         trends = ", ".join(t.keyword for t in state.trends[:3])
-#         details.append(f"analyzed trends related to {trends}")
-#     if state.hashtags:
-#         hashtags = ", ".join(state.hashtags[:3])
-#         details.append(f"generated hashtags including {hashtags}")
-#     if state.script:
-#         script_preview = state.script[:100] + "..." if len(state.script) > 100 else state.script
-#         details.append(f"created a script: {script_preview}")
-#         if state.production_ideas:
-#             ideas = ", ".join(state.production_ideas[:2])
-#             details.append(f"production ideas: {ideas}")
-#     if state.script:
-#         executed = ", ".join(s.step for s in state.steps if s.executed)
-#         pending = ", ".join(s.step for s in state.steps if not s.executed)
-#         details.append(f"executed steps: {executed}\n")
-#         if pending:
-#             details.append(f"pending steps: {pending}\n")
-
-#     next_steps = ""
-#     if state.current_step in ["search_engine", "trend_analyzer"]:
-#         next_steps = " Would you like to continue with the next steps?"
-#     elif state.current_step == "script_generator":
-#         next_steps = " Let me know if you'd like any revisions to the script."
-
-#     response = f"I've processed the campaign for '{state.campaign_theme}'."
-#     if details:
-#         response += " I've " + ", and ".join(details) + "." + next_steps
-#     if state.script:
-#         response += f"\n\n--- SCRIPT ---\n\n{state.script}"
-#     return response
-
 def format_campaign_output(state: CampaignState) -> str:
     lines = []
 
