@@ -9,45 +9,11 @@ from services.trend_tool import trend_analyzer
 from services.search_tool import search_engine
 from services.hashtag_gen import hashtag_generator
 from services.script_tool import script_generator
+from services.tts_tool import tts_generator
 
 from configs.llm_config import get_llm
 from dotenv import load_dotenv
 load_dotenv()
-
-# def format_response(state: CampaignState) -> str:
-#     """Format a detailed response."""
-#     details = []
-#     if state.trends:
-#         trends = ", ".join(t.keyword for t in state.trends[:3])
-#         details.append(f"analyzed trends related to {trends}")
-#     if state.hashtags:
-#         hashtags = ", ".join(state.hashtags[:3])
-#         details.append(f"generated hashtags including {hashtags}")
-#     if state.script:
-#         script_preview = state.script[:100] + "..." if len(state.script) > 100 else state.script
-#         details.append(f"created a script: {script_preview}")
-#         if state.production_ideas:
-#             ideas = ", ".join(state.production_ideas[:2])
-#             details.append(f"production ideas: {ideas}")
-#     if state.script:
-#         executed = ", ".join(s.step for s in state.steps if s.executed)
-#         pending = ", ".join(s.step for s in state.steps if not s.executed)
-#         details.append(f"executed steps: {executed}\n")
-#         if pending:
-#             details.append(f"pending steps: {pending}\n")
-
-#     next_steps = ""
-#     if state.current_step in ["search_engine", "trend_analyzer"]:
-#         next_steps = " Would you like to continue with the next steps?"
-#     elif state.current_step == "script_generator":
-#         next_steps = " Let me know if you'd like any revisions to the script."
-
-#     response = f"I've processed the campaign for '{state.campaign_theme}'."
-#     if details:
-#         response += " I've " + ", and ".join(details) + "." + next_steps
-#     if state.script:
-#         response += f"\n\n--- SCRIPT ---\n\n{state.script}"
-#     return response
 
 def format_campaign_output(state: CampaignState) -> str:
     lines = []
@@ -138,6 +104,12 @@ def script_generator_node(state: CampaignState) -> CampaignState:
         "current_step": "script_generator"
     }
 
+def tts_generator_node(state: CampaignState) -> CampaignState:
+    result = tts_generator.invoke({"state": state})
+    return {
+        "messages": result["messages"],
+    }
+
 # Build graph
 def build_graph():
     workflow = StateGraph(CampaignState)
@@ -146,6 +118,7 @@ def build_graph():
     workflow.add_node("search_engine", search_engine_node)
     workflow.add_node("hashtag_generator", hashtag_generator_node)
     workflow.add_node("script_generator", script_generator_node)
+    workflow.add_node("tts_generator", tts_generator_node)
 
     # Edges
     workflow.add_conditional_edges(
@@ -156,6 +129,7 @@ def build_graph():
             "search_engine": "search_engine",
             "hashtag_generator": "hashtag_generator",
             "script_generator": "script_generator",
+            "tts_generator": "tts_generator",
             "END": END
         }
     )
@@ -163,11 +137,13 @@ def build_graph():
     workflow.add_edge("search_engine", "llm_router")
     workflow.add_edge("hashtag_generator", "llm_router")
     workflow.add_edge("script_generator", "llm_router")
+    workflow.add_edge("tts_generator", "llm_router")
     workflow.set_entry_point("llm_router")
 
     # Compile graph
     graph = workflow.compile()
 
+    print(graph)
     return graph
 
 
@@ -183,12 +159,12 @@ initial_state = CampaignState(
     hashtags=[],
     script="",
     production_ideas=[],
-    messages=[Message(role="user", content="Create a complete campaign for street wear fashion brand aiming the Gen Z people in a humorous tone.")],
+    messages=[Message(role="user", content="Provide a complete campaign for a new sustainable shoe brand focusing the millenials in a humorous tone.")],
     current_step=""
 )
 
-# graph = build_graph()
+graph = build_graph()
 
-# result = graph.invoke(initial_state)
-# final_state = CampaignState(**result)
-# print(format_campaign_output(final_state))
+result = graph.invoke(initial_state)
+final_state = CampaignState(**result)
+print(format_campaign_output(final_state))

@@ -4,12 +4,88 @@ A LangGraph-powered intelligent agent that helps creators and marketers generate
 
 ---
 
-## Features
+## System Architecture
 
-- **Trend-Aware Content Generation**: Integrates real-time Google Trends and search engine results using PyTrends and Tavily.
-- **Hashtag Generation**: Creates relevant, engaging, and up-to-date hashtags aligned with campaign themes.
-- **Graph-Based Workflow**: Uses LangGraph to conditionally route between tools and human-in-the-loop steps.
-- **Tool-Centric Modular Design**: Each capability is encapsulated in a reusable, independently callable tool.
+In this architecture, each tool operates as an independent agent with specific expertise, while loose coupling allows for easy extension and modification.The LLM Router acts as a central coordinator. Steps are generated based on user requirements, not pre-defined which allows felexible execution order with dependency management.
+
+![System Architecture](docs/agent.png)
+
+### 1. LLM Router Node (`llm_node.py`)
+
+**Role:** Central orchestrator and decision-making hub  
+**Responsibilities:**
+
+- Extracts campaign parameters (campaign theme, target audience, duration, tone) from user input
+- Dynamically generates execution steps based on requirements
+- Routes between different tools in the workflow
+- Manages step execution state and determines workflow completion
+
+---
+
+### 2. Tool Suite
+
+#### Trend Analyzer (`trend_tool.py`)
+
+**Purpose:** Analyzes current trends related to campaign themes  
+**Implementation:**
+
+- Uses SerpAPI for Google search-based trend analysis
+- LLM-powered keyword generation for comprehensive trend coverage
+- Extracts trend direction, related content, and relevance scores
+
+**Output:** Structured trend data with keywords, relevance metrics, and trend directions
+
+---
+
+#### Search Engine (`search_tool.py`)
+
+**Purpose:** Gathers comprehensive information on identified trends  
+**Implementation:**
+
+- Integrates Tavily Search API for deep web research
+- Searches across multiple trend keywords simultaneously
+- Implements rate limiting and error handling
+
+**Output:** Detailed search results with content summaries and metadata
+
+---
+
+#### Hashtag Generator (`hashtag_gen_tool.py`)
+
+**Purpose:** Creates relevant and trending hashtags for campaigns  
+**Implementation:**
+
+- Analyzes campaign theme, trends, and search results
+- Generates memorable, catchy hashtags with viral potential
+- Balances broad appeal with niche specificity
+
+**Output:** Curated list of 5 optimized hashtags with proper formatting
+
+---
+
+#### Script Generator (`script_tool.py`)
+
+**Purpose:** Creates engaging campaign scripts  
+**Implementation:**
+
+- Synthesizes all collected data (trends, search results, hashtags)
+- Generates audience-appropriate content with specified tone
+- Includes production suggestions and timing considerations
+
+**Output:** Complete script with production ideas and call-to-action elements
+
+---
+
+#### Text-to-Speech Generator (`tts_tool.py`)
+
+**Purpose:** Converts scripts into audio content  
+**Implementation:**
+
+- Integrates Google Gemini TTS API
+- Configurable voice settings (currently uses "Kore" voice)
+- Outputs high-quality WAV files for immediate use
+
+**Output:** Audio file (`out.wav`) ready for campaign deployment
 
 ---
 
@@ -19,6 +95,7 @@ A LangGraph-powered intelligent agent that helps creators and marketers generate
 - [OpenAI GPT-4o-mini](https://openai.com) as the central LLM
 - [Tavily](https://www.tavily.com/) for up-to-date search results
 - [PyTrends](https://github.com/GeneralMills/pytrends) for keyword trend analysis
+- [SerpAPI](https://serpapi.com) for web search
 - [Pydantic](https://docs.pydantic.dev) for structured tool schemas
 - [LangChain](https://www.langchain.com/) for tools and prompt management
 
