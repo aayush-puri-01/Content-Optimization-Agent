@@ -8,7 +8,7 @@ A LangGraph-powered intelligent agent that helps creators and marketers generate
 
 In this architecture, each tool operates as an independent agent with specific expertise, while loose coupling allows for easy extension and modification.The LLM Router acts as a central coordinator. Steps are generated based on user requirements, not pre-defined which allows felexible execution order with dependency management.
 
-![System Architecture](C:\Users\aayus\Desktop\veel_projects\agentic_system\notebooks\agent.png)
+![System Architecture](docs\agent.png)
 
 ### 1. LLM Router Node (`llm_node.py`)
 
